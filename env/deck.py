@@ -1,3 +1,4 @@
+import random
 
 class Deck:
 
@@ -26,6 +27,9 @@ class Deck:
         set_nbr, _ = self.cards[idx]
         assert set_nbr == number
         self.cards[idx] = (number, penalty)
+
+    def shuffle_deck(self):
+        random.shuffle(self.cards)
 
 
 

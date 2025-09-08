@@ -57,5 +57,47 @@ class TestDeck(unittest.TestCase):
         _, p = self.__find_card(deck.cards, 55)
         self.assertEqual(p, 7)
 
+    def test_shuffle(self):
+        deck = Deck()
+
+        former_seq = []
+        for n, _ in deck.cards:
+            former_seq.append(n)
+
+        now_seq = []
+        for n, _ in deck.cards:
+            now_seq.append(n)
+
+        # equal before shuffle
+        self.assertEqual(former_seq, now_seq)
+
+        deck.shuffle_deck()
+
+        after_shuffle_seq = []
+        for n, _ in deck.cards:
+            after_shuffle_seq.append(n)
+
+        self.assertNotEqual(former_seq, after_shuffle_seq)
+
+        # check that still all cards there
+        mandatory_idx = {}
+        for i in range(1, 105):
+            mandatory_idx[i] = False
+
+        for nbr, pen in deck.cards:
+            self.assertGreater(nbr, 0)
+            self.assertLess(nbr, 105)
+            self.assertGreater(pen, 0)
+            self.assertLess(pen, 8)
+
+            already_seen = mandatory_idx[nbr]
+            self.assertFalse(already_seen)
+            mandatory_idx[nbr] = True
+
+        # check that all cards has been seen
+        for i in range(1, 105):
+            self.assertTrue(mandatory_idx[i])
+
+
 if __name__ == '__main__':
     unittest.main()
