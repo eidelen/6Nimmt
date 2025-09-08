@@ -99,5 +99,6 @@ class TestDeck(unittest.TestCase):
             self.assertTrue(mandatory_idx[i])
 
 
+
 if __name__ == '__main__':
     unittest.main()

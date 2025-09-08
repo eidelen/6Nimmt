@@ -11,15 +11,15 @@ class Deck:
 
         # overwrite special cards
         for k in range(1, 11):
-            self.__overwrite_card(k * 10, 3)
+            self._overwrite_card(k * 10, 3)
         for q in range(1, 10):
-            self.__overwrite_card(q * 11, 5)
+            self._overwrite_card(q * 11, 5)
         for z in range(0, 10):
-            self.__overwrite_card(5 + z*10, 2)
+            self._overwrite_card(5 + z * 10, 2)
 
-        self.__overwrite_card(55, 7)
+        self._overwrite_card(55, 7)
 
-    def __overwrite_card(self, number, penalty):
+    def _overwrite_card(self, number, penalty):
         # can only be called on initial set
         # check idx...
         idx = number-1
