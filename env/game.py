@@ -45,11 +45,11 @@ class Game:
         while len(sorted_actions) > 0:
             chosen_card_number, chosen_card_idx, player_idx = sorted_actions[0]
             card_to_play = self.players_cards[player_idx][chosen_card_idx]
-            self.insert_card(card_to_play)
+            self._insert_card(card_to_play)
 
         return sorted_actions
 
-    def insert_card(self, card, player_idx):
+    def _insert_card(self, card, player_idx):
         # find best slot to insert -> smallest positive difference
         card_num, card_pen = card
         best_slot_idx = -1
@@ -65,20 +65,39 @@ class Game:
                 best_slot_idx = slot_idx
 
         if best_slot_idx < 0:
-            # no slot could be found for card -> player action needed
-            return False
+            # no valid slot could be found for card -> take the stack with lowest penalty and place card there
+            replace_slot_idx = self._get_slot_with_lowest_penalty()
+            self._move_slot_cards_to_players_penalty(replace_slot_idx, player_idx)
+            self.board[replace_slot_idx].append(card)
+            return
 
-        # insert card into determined slot
         num_of_cards_in_slot = len(self.board[best_slot_idx])
-        if num_of_cards_in_slot > 5:
-            # put all cards in that stack to the players penalty stack
-            while len(self.board[best_slot_idx]) > 0:
-                self.players_penalties_cards[player_idx].append(self.board[best_slot_idx].pop())
+        if num_of_cards_in_slot > 4:
+            # reached the sixth card!
+            self._move_slot_cards_to_players_penalty(best_slot_idx, player_idx)
 
         # add played card to the slot
         self.board[best_slot_idx].append(card)
-        return True
+        return
 
+    def _move_slot_cards_to_players_penalty(self, slot_idx, player_idx):
+        while len(self.board[slot_idx]) > 0:
+            self.players_penalties_cards[player_idx].append(self.board[slot_idx].pop(0))
 
+    def _get_accumulated_slot_penalty(self, slot_idx):
+        sum_penalty = 0
+        for _, penalty in self.board[slot_idx]:
+            sum_penalty += penalty
+        return sum_penalty
+
+    def _get_slot_with_lowest_penalty(self):
+        lowest_penalty = 100
+        lowest_penalty_idx = -1
+        for slot_idx in range(len(self.board)):
+            penalty = self._get_accumulated_slot_penalty(slot_idx)
+            if penalty < lowest_penalty:
+                lowest_penalty = penalty
+                lowest_penalty_idx = slot_idx
+        return lowest_penalty_idx
 
 

@@ -31,7 +31,42 @@ class TestGame(unittest.TestCase):
         self.assertEqual(len(game.board[2]), 1)
         self.assertEqual(len(game.board[3]), 1)
 
+    def test_slot_penalty_functions(self):
+        game = Game(2)
+        game.board[1] = [(1, 3), (2, 6)] # penalty sum is 9
+        self.assertEqual(game._get_accumulated_slot_penalty(1), 9)
+        game.board[0] = [(5, 3), (2, 6)]
+        game.board[2] = [(80, 1), (81, 1)] # this is the slot with lowest penalty
+        game.board[3] = [(90, 3), (91, 6)]
+        self.assertEqual(game._get_slot_with_lowest_penalty(), 2)
 
+    def test_move_slot_to_players_penalty(self):
+        game = Game(2)
+        game.board[0] = [(5, 3), (6, 6)]
+        game.board[1] = [(1, 3), (2, 6)]    # penalty sum is 9
+        game.board[2] = [(80, 1), (81, 1)]  # this is the slot with lowest penalty
+        game.board[3] = [(90, 3), (91, 6)]
+
+        self.assertEqual(game.players_penalties_cards[0], [])
+        game._move_slot_cards_to_players_penalty(2, 0)
+        self.assertEqual(game.players_penalties_cards[0],  [(80, 1), (81, 1)] )
+
+    def test_insert_card(self):
+        game = Game(2)
+        game.board[0] = [(10, 3)]
+        game.board[1] = [(20, 3)]
+        game.board[2] = [(50, 1)]
+        game.board[3] = [(90, 3), (91, 6)]
+        self.assertEqual(game.board[0], [(10, 3)])
+        game._insert_card((11, 0), 0)
+        self.assertEqual(game.board[0], [(10, 3), (11, 0)])
+        game._insert_card((12, 0), 0)
+        game._insert_card((13, 0), 0)
+        game._insert_card((14, 0), 0)
+        self.assertEqual(game.board[0], [(10, 3), (11, 0), (12, 0), (13, 0), (14, 0)])
+        game._insert_card((15, 0), 0)
+        self.assertEqual(game.board[0], [(15, 0)])
+        self.assertEqual(game.players_penalties_cards[0], [(10, 3), (11, 0), (12, 0), (13, 0), (14, 0)])
 
 
 
