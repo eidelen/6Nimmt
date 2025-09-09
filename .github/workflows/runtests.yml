@@ -1,4 +1,4 @@
-name: DSPRap pipeline
+name: 6Nimmt pipeline
 
 on: [push]
 
