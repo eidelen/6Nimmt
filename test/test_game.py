@@ -68,6 +68,50 @@ class TestGame(unittest.TestCase):
         self.assertEqual(game.board[0], [(15, 0)])
         self.assertEqual(game.players_penalties_cards[0], [(10, 3), (11, 0), (12, 0), (13, 0), (14, 0)])
 
+    def test_choose_cards(self):
+        game = Game(2)
+        game.board[0] = [(10, 3)]
+        game.board[1] = [(20, 3)]
+        game.board[2] = [(50, 1)]
+        game.board[3] = [(90, 3), (91, 6)]
+
+        game.players_cards[0] = [(11, 1), (12, 4), (14, 2), (16, 1)]
+        game.players_cards[1] = [(13, 3), (52, 2), (15, 1), (17, 2)]
+
+        # player 1 chooses card 1, player 2 chooses card 0
+        game.step_players_choose_cards([1, 0])
+
+        self.assertEqual(game.players_cards[0], [(11, 1), (14, 2), (16, 1)])
+        self.assertEqual(game.players_cards[1], [(52, 2), (15, 1), (17, 2)])
+        self.assertEqual(game.board[0], [(10, 3), (12, 4), (13, 3)])
+        self.assertEqual(game.board[1], [(20, 3)])
+        self.assertEqual(game.board[2], [(50, 1)])
+        self.assertEqual(game.board[3], [(90, 3), (91, 6)])
+
+        game.step_players_choose_cards([1, 1])
+
+        self.assertEqual(game.players_cards[0], [(11, 1), (16, 1)])
+        self.assertEqual(game.players_cards[1], [(52, 2), (17, 2)])
+        self.assertEqual(game.board[0], [(10, 3), (12, 4), (13, 3), (14, 2), (15, 1)])
+        self.assertEqual(game.board[1], [(20, 3)])
+        self.assertEqual(game.board[2], [(50, 1)])
+        self.assertEqual(game.board[3], [(90, 3), (91, 6)])
+
+        game.step_players_choose_cards([1, 1])
+        # player 0 reaches 6nimmt
+
+        self.assertEqual(game.players_cards[0], [(11, 1)])
+        self.assertEqual(game.players_cards[1], [(52, 2)])
+        self.assertEqual(game.board[0], [(16, 1), (17, 2)])
+        self.assertEqual(game.board[1], [(20, 3)])
+        self.assertEqual(game.board[2], [(50, 1)])
+        self.assertEqual(game.board[3], [(90, 3), (91, 6)])
+
+        self.assertEqual(game.players_penalties_cards[0], [(10, 3), (12, 4), (13, 3), (14, 2), (15, 1)])
+        self.assertEqual(game.players_penalties_cards[1], [])
+
+
+
 
 
 if __name__ == '__main__':

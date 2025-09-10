@@ -43,9 +43,9 @@ class Game:
 
         # process actions
         while len(sorted_actions) > 0:
-            chosen_card_number, chosen_card_idx, player_idx = sorted_actions[0]
-            card_to_play = self.players_cards[player_idx][chosen_card_idx]
-            self._insert_card(card_to_play)
+            chosen_card_number, chosen_card_idx, player_idx = sorted_actions.pop(0)
+            card_to_play = self.players_cards[player_idx].pop(chosen_card_idx)
+            self._insert_card(card_to_play, player_idx)
 
         return sorted_actions
 
