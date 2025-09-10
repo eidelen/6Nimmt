@@ -1,4 +1,6 @@
 import unittest
+
+from env import game
 from env.game import Game
 
 
@@ -34,7 +36,7 @@ class TestGame(unittest.TestCase):
     def test_slot_penalty_functions(self):
         game = Game(2)
         game.board[1] = [(1, 3), (2, 6)] # penalty sum is 9
-        self.assertEqual(game._get_accumulated_slot_penalty(1), 9)
+        self.assertEqual(game._get_accumulated_stack_penalty(game.board[1]), 9)
         game.board[0] = [(5, 3), (2, 6)]
         game.board[2] = [(80, 1), (81, 1)] # this is the slot with lowest penalty
         game.board[3] = [(90, 3), (91, 6)]
@@ -110,7 +112,27 @@ class TestGame(unittest.TestCase):
         self.assertEqual(game.players_penalties_cards[0], [(10, 3), (12, 4), (13, 3), (14, 2), (15, 1)])
         self.assertEqual(game.players_penalties_cards[1], [])
 
+    def test_game_over_return(self):
+        game = Game(2)
+        game.board[0] = [(10, 3)]
+        game.board[1] = [(20, 3)]
+        game.board[2] = [(50, 1)]
+        game.board[3] = [(90, 3), (91, 6)]
 
+        game.players_cards[0] = [(11, 1), (13, 4), (15, 2), (17, 1)]
+        game.players_cards[1] = [(12, 3), (14, 2), (16, 1), (18, 2)]
+
+        for i in range(2):
+            game_on, penalties = game.step_players_choose_cards([0, 0])
+            self.assertTrue(game_on)
+            self.assertEqual(penalties, [0, 0])
+
+        game_on, penalties = game.step_players_choose_cards([0, 0])
+        self.assertTrue(game_on)
+        self.assertEqual(penalties, [13, 0])
+
+        game_on, penalties = game.step_players_choose_cards([0, 0])
+        self.assertFalse(game_on)
 
 
 

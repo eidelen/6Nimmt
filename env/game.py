@@ -1,4 +1,6 @@
 import heapq
+from typing import Tuple, List
+
 from env.deck import Deck
 
 class Game:
@@ -34,7 +36,12 @@ class Game:
     def get_players_cards(self):
         return self.players_cards.copy()
 
-    def step_players_choose_cards(self, cards):
+    def step_players_choose_cards(self, cards) -> Tuple[bool, List[int]]:
+        """
+        Simulates a plays round.
+        :param cards: Chosen Card indices
+        :return: Bool if play ongoing or ended, accumulated penalites for each player
+        """
         sorted_actions = []
         for player_idx in range(len(cards)):
             chosen_card_idx = cards[player_idx]
@@ -47,7 +54,13 @@ class Game:
             card_to_play = self.players_cards[player_idx].pop(chosen_card_idx)
             self._insert_card(card_to_play, player_idx)
 
-        return sorted_actions
+        # create return values
+        play_ongoing = len(self.players_cards[0]) > 0
+        current_penalties = []
+        for player_idx in range(len(self.players_penalties_cards)):
+            current_penalties.append(self._get_accumulated_stack_penalty(self.players_penalties_cards[player_idx]))
+
+        return play_ongoing, current_penalties
 
     def _insert_card(self, card, player_idx):
         # find best slot to insert -> smallest positive difference
@@ -84,9 +97,9 @@ class Game:
         while len(self.board[slot_idx]) > 0:
             self.players_penalties_cards[player_idx].append(self.board[slot_idx].pop(0))
 
-    def _get_accumulated_slot_penalty(self, slot_idx):
+    def _get_accumulated_stack_penalty(self, stack):
         sum_penalty = 0
-        for _, penalty in self.board[slot_idx]:
+        for _, penalty in stack:
             sum_penalty += penalty
         return sum_penalty
 
@@ -94,7 +107,7 @@ class Game:
         lowest_penalty = 100
         lowest_penalty_idx = -1
         for slot_idx in range(len(self.board)):
-            penalty = self._get_accumulated_slot_penalty(slot_idx)
+            penalty = self._get_accumulated_stack_penalty(self.board[slot_idx])
             if penalty < lowest_penalty:
                 lowest_penalty = penalty
                 lowest_penalty_idx = slot_idx
