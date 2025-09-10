@@ -113,4 +113,46 @@ class Game:
                 lowest_penalty_idx = slot_idx
         return lowest_penalty_idx
 
+    def _stack_view_text(self, stack) -> str:
+        view = ""
+        for num, penalty in stack:
+            view += str(num) + ("*"*penalty)  + '\t\t'
+        return view
+
+    def _board_view_text(self) -> str:
+        board_view = ""
+        for slot_cards in self.board:
+            board_view += self._stack_view_text(slot_cards) + '\n'
+        return board_view
+
+    def god_view_text(self) -> str:
+        view = self._board_view_text() + '\n'
+        for player_idx in range(len(self.players_cards)):
+            view += "Player " + str(player_idx) + ": " + self._stack_view_text(self.players_cards[player_idx]) + '\n'
+        return view
+
+    def player_view_text(self, player_idx) -> str:
+        view = self._board_view_text() + '\n' + self._stack_view_text(self.players_cards[player_idx]) + '\n'
+        return view
+
+
+def do_a_game(num_players):
+    game = Game(num_players)
+
+    go_on = True
+    while go_on:
+        cards_to_play = []
+        for player_idx in range(len(game.players_cards)):
+            print(game.player_view_text(player_idx))
+            card_idx = int(input("P"+str(player_idx)+": Which card would you like to play? "))
+            cards_to_play.append(card_idx)
+        go_on, penalties = game.step_players_choose_cards(cards_to_play)
+    print("Play is over!")
+
+
+
+if __name__ == "__main__":
+    do_a_game(2)
+
+
 
