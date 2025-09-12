@@ -48,9 +48,10 @@ class Game:
             chosen_card_number, _ = self.players_cards[player_idx][chosen_card_idx]
             heapq.heappush(sorted_actions, (chosen_card_number, chosen_card_idx, player_idx))
 
-        # process actions
+        # process actions in increasing chosen card order
+        # use heap pop to maintain ordering across successive removals
         while len(sorted_actions) > 0:
-            chosen_card_number, chosen_card_idx, player_idx = sorted_actions.pop(0)
+            chosen_card_number, chosen_card_idx, player_idx = heapq.heappop(sorted_actions)
             card_to_play = self.players_cards[player_idx].pop(chosen_card_idx)
             self._insert_card(card_to_play, player_idx)
 
@@ -153,6 +154,5 @@ def do_a_game(num_players):
 
 if __name__ == "__main__":
     do_a_game(2)
-
 
 
