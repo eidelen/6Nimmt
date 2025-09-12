@@ -6,7 +6,7 @@ from players.lazzy_player import LazzyPlayer
 
 if __name__ == "__main__":
 
-    n_games = 1000000
+    n_games = 100000
 
     n_players = 6
     accumulated_penalties = [0] * n_players
@@ -26,3 +26,8 @@ if __name__ == "__main__":
     for i in range(len(accumulated_penalties)):
         accumulated_penalties[i] = accumulated_penalties[i] / n_games
     print(accumulated_penalties)
+
+    #[13.004789, 13.018059, 13.388693, 12.601966, 12.885856, 14.44924]
+    #[13.016749, 13.009984, 13.370666, 12.600412, 12.90129, 14.451634]
+
+    #[12.98104, 13.03884, 13.4171, 12.63918, 12.87332, 14.4007]
