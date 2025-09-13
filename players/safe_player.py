@@ -1,7 +1,9 @@
 import random
 import heapq
-from env.arena import Arena, Player
 from typing import Tuple, List
+
+from env.arena import Arena, Player
+from env.common import rank_best_cards_for_num
 
 class SafePlayer(Player):
 
@@ -23,18 +25,10 @@ class SafePlayer(Player):
             top_num, _ = board[this_slot_idx][-1]
 
             # find a card to play that slot
-            lowest_diff = 100
-            lowest_card_idx = -1
-            for card_idx in range(len(cards)):
-                card_num, _ = cards[card_idx]
-                diff = card_num - top_num
-                if diff > 0 and diff < lowest_diff:
-                    lowest_diff = diff
-                    lowest_card_idx = card_idx
-
-            if lowest_card_idx != -1:
-                return lowest_card_idx
+            rank_best_cards = rank_best_cards_for_num(cards, top_num)
+            if len(rank_best_cards) > 0:
+                _, best_card_idx, _ = rank_best_cards[0]
+                return best_card_idx
 
         # if no card to play choose random
         return random.randint(0, len(cards) - 1)
-

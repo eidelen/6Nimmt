@@ -65,7 +65,7 @@ class Game:
         return play_ongoing, current_penalties
 
     def _insert_card(self, card, player_idx):
-        # find best slot to insert -> smallest positive difference
+        # find best slot to insert -> smalest positive difference
         card_num, card_pen = card
         best_slot_idx = -1
         best_slot_diff = 200
