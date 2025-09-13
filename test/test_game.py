@@ -36,7 +36,6 @@ class TestGame(unittest.TestCase):
     def test_slot_penalty_functions(self):
         game = Game(2)
         game.board[1] = [(1, 3), (2, 6)] # penalty sum is 9
-        self.assertEqual(game._get_accumulated_stack_penalty(game.board[1]), 9)
         game.board[0] = [(5, 3), (2, 6)]
         game.board[2] = [(80, 1), (81, 1)] # this is the slot with lowest penalty
         game.board[3] = [(90, 3), (91, 6)]

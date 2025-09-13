@@ -2,6 +2,7 @@ import heapq
 from typing import Tuple, List
 
 from env.deck import Deck
+from env.common import get_accumulated_stack_penalty
 
 class Game:
 
@@ -59,7 +60,7 @@ class Game:
         play_ongoing = len(self.players_cards[0]) > 0
         current_penalties = []
         for player_idx in range(len(self.players_penalties_cards)):
-            current_penalties.append(self._get_accumulated_stack_penalty(self.players_penalties_cards[player_idx]))
+            current_penalties.append(get_accumulated_stack_penalty(self.players_penalties_cards[player_idx]))
 
         return play_ongoing, current_penalties
 
@@ -98,17 +99,11 @@ class Game:
         while len(self.board[slot_idx]) > 0:
             self.players_penalties_cards[player_idx].append(self.board[slot_idx].pop(0))
 
-    def _get_accumulated_stack_penalty(self, stack):
-        sum_penalty = 0
-        for _, penalty in stack:
-            sum_penalty += penalty
-        return sum_penalty
-
     def _get_slot_with_lowest_penalty(self):
         lowest_penalty = 100
         lowest_penalty_idx = -1
         for slot_idx in range(len(self.board)):
-            penalty = self._get_accumulated_stack_penalty(self.board[slot_idx])
+            penalty = get_accumulated_stack_penalty(self.board[slot_idx])
             if penalty < lowest_penalty:
                 lowest_penalty = penalty
                 lowest_penalty_idx = slot_idx
