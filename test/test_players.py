@@ -2,6 +2,7 @@ import unittest
 
 from env import game
 from players.safe_player import SafePlayer
+from players.cardcounting_player import CardCountingPlayer
 
 class TestPlayers(unittest.TestCase):
 
@@ -14,6 +15,13 @@ class TestPlayers(unittest.TestCase):
 
         # SafePlayer would choose to play on slot 1 because there are the least cards. It would choose card 20 -> idx 1
         self.assertEqual(card_idx, 1)
+
+    def test_memorize_played_cards(self):
+        m_player = CardCountingPlayer()
+        cards = [(10, 1), (20, 1), (30, 1)]
+        boards = [[(15, 1), (16, 1)], [(19, 1)], [(50, 1), (51, 1)], [(60, 1), (61, 1)]]
+        pass
+
 
 
 
