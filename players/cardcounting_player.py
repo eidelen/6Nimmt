@@ -8,8 +8,7 @@ class CardCountingPlayer(Player):
     def __init__(self):
         super().__init__()
 
-    def call_select_card(self, cards: List[Tuple[int, int]], board: List[List[Tuple[int, int]]]) -> int:
-        # todo: also forward the penalty card of all players, as these were seen by all players.
+    def call_select_card(self, cards: List[Tuple[int, int]], board: List[List[Tuple[int, int]]], all_penalty_cards: List[List[Tuple[int, int]]]) -> int:
         # this player memorizes all played cards and computes an accurate probability
         # in order to not hit the sixth card
 

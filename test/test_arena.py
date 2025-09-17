@@ -8,7 +8,7 @@ class TestPlayer(Player):
         super().__init__()
         self.cnt_calls = 0
 
-    def call_select_card(self, cards: List[Tuple[int, int]], board: List[List[Tuple[int, int]]]) -> int:
+    def call_select_card(self, own_cards: List[Tuple[int, int]], board: List[List[Tuple[int, int]]], all_penalty_cards: List[List[Tuple[int, int]]]) -> int:
         # count the calls and always select the first card
         self.cnt_calls += 1
         return 0

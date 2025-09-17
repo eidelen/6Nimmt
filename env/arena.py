@@ -5,7 +5,7 @@ from env.game import Game
 
 class Player(ABC):
     @abstractmethod
-    def call_select_card(self, cards: List[Tuple[int, int]], board: List[List[Tuple[int, int]]]) -> int:
+    def call_select_card(self, own_cards: List[Tuple[int, int]], board: List[List[Tuple[int, int]]], all_penalty_cards: List[List[Tuple[int, int]]]) -> int:
         """Compute area of the shape"""
         return 0
 
@@ -24,7 +24,8 @@ class Arena:
             for player_idx in range(len(self.players)):
                 player_cards = self.game.players_cards[player_idx]
                 board_cards = self.game.board
-                chosen_card_idx = self.players[player_idx].call_select_card(player_cards, board_cards)
+                all_penalty_cards = self.game.players_penalties_cards
+                chosen_card_idx = self.players[player_idx].call_select_card(player_cards, board_cards, all_penalty_cards)
                 cards_to_play.append(chosen_card_idx)
             go_on, penalties = self.game.step_players_choose_cards(cards_to_play)
         return penalties
