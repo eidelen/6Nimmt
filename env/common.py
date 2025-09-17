@@ -13,7 +13,19 @@ def rank_best_cards_for_num(cards, num):
     ranking = []
     for card_idx in range(len(cards)):
         card_num, _ = cards[card_idx]
-        card_diff = card_num - num
-        if card_diff > 0:
+        card_diff = nbr_cards_between(card_num, num)
+        if card_diff > -1:
             heapq.heappush(ranking, (card_diff, card_idx, card_num))
     return [heapq.heappop(ranking) for i in range(len(ranking))]
+
+def nbr_cards_between(a: int, b: int, exclude_known_cards = {}) -> int:
+
+    if a == b or a > b:
+        return -1 # invaldi
+
+    cnt_cards = 0
+    for i in range(a+1, b):
+        if i not in exclude_known_cards:
+            cnt_cards += 1
+
+    return cnt_cards

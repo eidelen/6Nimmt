@@ -1,5 +1,6 @@
 
 from typing import Tuple, List
+import heapq
 from env.arena import Arena, Player
 from env.common import rank_best_cards_for_num
 
@@ -14,8 +15,6 @@ class CardCountingPlayer(Player):
         # in order to not hit the sixth card
 
         self._memorize_played_cards(own_cards, board, all_penalty_cards)
-
-        # todo: implement
         return 0
 
     def _memorize_played_cards(self, own_cards: List[Tuple[int, int]], board: List[List[Tuple[int, int]]], all_penalty_cards: List[List[Tuple[int, int]]]) -> None:
