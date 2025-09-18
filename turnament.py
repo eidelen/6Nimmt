@@ -3,6 +3,7 @@ from env.arena import Arena
 from players.random_player import RandomPlayer
 from players.lazzy_player import LazzyPlayer
 from players.safe_player import SafePlayer
+from players.cardcounting_player import CardCountingPlayer
 
 if __name__ == "__main__":
 
@@ -15,9 +16,9 @@ if __name__ == "__main__":
 
         players = []
         players.append(RandomPlayer())
-        players.append(RandomPlayer())
         players.append(LazzyPlayer())
         players.append(SafePlayer())
+        players.append(CardCountingPlayer())
 
         arena = Arena(players)
         penalties = arena.play()

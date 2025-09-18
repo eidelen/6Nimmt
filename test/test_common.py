@@ -13,6 +13,10 @@ class TestCommon(unittest.TestCase):
         ranked_cards_idx = rank_best_cards_for_num([(8, 1), (11, 1), (10, 1), (12, 1), (7, 1)], 13)
         self.assertEqual([], ranked_cards_idx)
 
+    def test_rank_cards_exclude(self):
+        ranked_cards_idx = rank_best_cards_for_num([(8, 1), (12, 1), (14, 1)], 9, {10: True, 11: True})
+        self.assertEqual([(0, 1, 12), (2, 2, 14)], ranked_cards_idx)
+
     def test_diff_cards(self):
         self.assertEqual(nbr_cards_between_a_and_b( 1, 4), 2)  # 2, 3 in between
         self.assertEqual(nbr_cards_between_a_and_b(1, 2), 0)  # no card in bet
