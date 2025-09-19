@@ -11,6 +11,8 @@ from players.random_player import RandomPlayer
 from players.lazzy_player import LazzyPlayer
 from players.safe_player import SafePlayer
 
+
+
 class Game6NimmtEnv(gym.Env):
 
     def __init__(self):
@@ -86,25 +88,28 @@ class Game6NimmtEnv(gym.Env):
 
         # agent selects his cards
         current_player_penalty = 0
+        current_agent_rank = 0
         nbr_of_player_cards = len(self.game.players_cards[3])
         if action < 0 or action > nbr_of_player_cards - 1:
             # invalid action -> stop play
             reward += invalid_action_reward
             truncate = True
+            current_player_penalty = 40
+            current_agent_rank = 4
         else:
             cards_to_play.append(action)
 
             # game simulation
             game_ongoing, current_penalties = self.game.step_players_choose_cards(cards_to_play)
             current_player_penalty = current_penalties[3]
+
+            # ranking
+            sorted_indices = sorted(range(len(current_penalties)), key=lambda i: current_penalties[i])
+            current_agent_rank = sorted_indices.index(3)
+
             if not game_ongoing:
                 # game ended
                 terminated = True
+                reward += (winning_reward - current_agent_rank)
 
-                # ranking
-                sorted_indices = sorted(range(len(current_penalties)), key=lambda i: current_penalties[i])
-                agent_rank = sorted_indices.index(3)
-
-                reward += (winning_reward - agent_rank)
-
-        return self.make_observation(), reward, terminated, truncate, {"penalty": current_player_penalty}
+        return self.make_observation(), reward, terminated, truncate, {"penalty": current_player_penalty, "rank": float(current_agent_rank) }

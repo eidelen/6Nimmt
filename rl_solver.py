@@ -8,8 +8,21 @@ from ray.rllib.algorithms.ppo import PPOConfig, PPO
 from ray.rllib.env import EnvContext
 from ray.tune import register_env, tune
 from ray.tune.stopper import MaximumIterationStopper
+import numpy as np
+from ray.rllib.callbacks.callbacks import RLlibCallback
 
 from env.game_gym import Game6NimmtEnv
+
+
+class PenaltyMetricsCallback(RLlibCallback):
+    def on_episode_end(self, *, episode, metrics_logger=None, **kwargs):
+        # Get the last step's info dict (single-agent new stack)
+        last_info = episode.get_infos(-1)
+        if last_info and "penalty" in last_info:
+            metrics_logger.log_value("final_penalty", float(last_info["penalty"]))
+        if last_info and "rank" in last_info:
+            metrics_logger.log_value("final_rank", float(last_info["rank"]))
+
 
 def env_create(env_config: EnvContext):
     return Game6NimmtEnv(**env_config)
@@ -51,18 +64,12 @@ def grid_search_hypers(env_params: dict, nn_model: list, activation: str, desc: 
                 "lstm_use_prev_action": False,
             }
         )
-        # another help -> https://github.com/ray-project/ray/issues/9220
-        config.model['use_lstm'] = True
-        # Max seq len for training the LSTM, defaults to 20.
-        config.model['max_seq_len'] = 20
-        # Size of the LSTM cell.
-        config.model['lstm_cell_size'] = 256
-        # Whether to feed a_{t-1}, r_{t-1} to LSTM.
-        config.model['lstm_use_prev_reward'] = False
-        config.model['lstm_use_prev_action'] = False
+
 
     config = config.env_runners(num_env_runners=train_hw["cpu"])
     config = config.training(gamma=ray.tune.grid_search([0.75, 0.80, 0.9, 0.99]))
+
+    config = config.callbacks(PenaltyMetricsCallback)
 
     config = config.debugging(log_level="ERROR")
 
@@ -102,7 +109,7 @@ if __name__ == '__main__':
 
         # train hw:
         #hw = {"gpu": 0, "cpu": 3} # imac
-        hw = {"gpu": 1, "cpu": 1}  # adris
+        hw = {"gpu": 1, "cpu": 10}  # adris
 
         env_params = {}
 
@@ -110,8 +117,8 @@ if __name__ == '__main__':
         #env_params = {"size": 6, "max_steps": 60, "reduced_obs": True, "dead_when_colliding": True, "indestructible_agent": False, "dead_near_bomb": True}
         #env_params = {"size": 10, "max_steps": 100, "indestructible_agent": False, "dead_near_bomb": True}
         # env_params = {"size": 10, "max_steps": 200, "dead_when_colliding": True, "dead_near_bomb": True, "indestructible_agent": False, "close_bomb_penalty": -1.0}
-        nn_model = [128, 64]
+        nn_model = [128, 128, 64]
         activation = "relu"
         description = "Test6Nimmt"
 
-        grid_search_hypers(env_params, nn_model, activation, description, hw, use_lstm=False)
+        grid_search_hypers(env_params, nn_model, activation, description, hw, use_lstm=True)
