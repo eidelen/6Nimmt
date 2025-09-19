@@ -46,6 +46,9 @@ class Game:
         sorted_actions = []
         for player_idx in range(len(cards)):
             chosen_card_idx = cards[player_idx]
+
+            assert chosen_card_idx < len(self.players_cards[player_idx]), f"Player {player_idx} point to invalid card index {chosen_card_idx}"
+
             chosen_card_number, _ = self.players_cards[player_idx][chosen_card_idx]
             heapq.heappush(sorted_actions, (chosen_card_number, chosen_card_idx, player_idx))
 
