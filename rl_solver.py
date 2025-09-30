@@ -3,17 +3,13 @@ from datetime import datetime
 from pathlib import Path
 
 import ray.tune
-from ray import air, tune
 from ray.rllib.algorithms.ppo import PPOConfig, PPO
 from ray.rllib.env import EnvContext
-from ray.tune import register_env, tune
-from ray.tune.stopper import MaximumIterationStopper
-import numpy as np
 from ray.rllib.callbacks.callbacks import RLlibCallback
 
 from env.game_gym import Game6NimmtEnv
 
-
+# Own metric for tensor view
 class PenaltyMetricsCallback(RLlibCallback):
     def on_episode_end(self, *, episode, metrics_logger=None, **kwargs):
         # Get the last step's info dict (single-agent new stack)
@@ -27,6 +23,7 @@ class PenaltyMetricsCallback(RLlibCallback):
 def env_create(env_config: EnvContext):
     return Game6NimmtEnv(**env_config)
 
+
 def print_ppo_configs(config):
     print("Ray Version:", ray.__version__)
     print("clip_param", config.clip_param)
@@ -34,18 +31,15 @@ def print_ppo_configs(config):
     print("lr", config.lr)
     print("lamda", config.lambda_)
 
-def grid_search_hypers(env_params: dict, nn_model: list, activation: str, desc: str, train_hw: dict, use_lstm: bool):
-    register_env("Game6NimmtEnv", env_create)
+
+def grid_search_hypers(env_params: dict, nn_model: list, activation: str, gammas: list, desc: str, train_hw: dict, use_lstm: bool):
+    ray.tune.register_env("Game6NimmtEnv", env_create)
 
     config = PPOConfig()
 
-    print("Standard PPO Config:")
-    print_ppo_configs(config)
-
     config = config.framework(framework='torch')
     config = config.resources(num_gpus=train_hw["gpu"])
-    config = config.environment(env="Game6NimmtEnv",
-                                env_config=env_params)
+    config = config.environment(env="Game6NimmtEnv", env_config=env_params)
 
     config = config.rl_module(
         model_config={
@@ -65,17 +59,13 @@ def grid_search_hypers(env_params: dict, nn_model: list, activation: str, desc: 
             }
         )
 
-
     config = config.env_runners(num_env_runners=train_hw["cpu"])
-    config = config.training(gamma=ray.tune.grid_search([0.75, 0.80, 0.9, 0.99]))
-
+    config = config.training(gamma=ray.tune.grid_search(gammas))
     config = config.callbacks(PenaltyMetricsCallback)
-
     config = config.debugging(log_level="ERROR")
-
     experiment_name = f"PPO_{desc}_{datetime.now():%Y-%m-%d_%H-%M}_MODEL={nn_model}_ACT={activation}"
 
-    storage_uri = Path("out").resolve().as_uri()  # e.g. 'file:///C:/.../out'
+    storage_uri = Path("out").resolve().as_uri()
 
     tuner = ray.tune.Tuner(
         trainable=PPO,
@@ -84,7 +74,7 @@ def grid_search_hypers(env_params: dict, nn_model: list, activation: str, desc: 
             name=experiment_name,
             storage_path=storage_uri,
             verbose=2,
-            stop=MaximumIterationStopper(400),
+            stop=ray.tune.stopper.MaximumIterationStopper(100),
             checkpoint_config=ray.tune.CheckpointConfig(checkpoint_frequency=200)
         )
     )
@@ -103,22 +93,12 @@ def resume_training():
 
 if __name__ == '__main__':
 
-    #resume_training()
+    # training settings
+    hw = {"gpu": 1, "cpu": 10}
+    env_params = {}
+    nn_model = [128, 128, 64]
+    activation = "relu"
+    description = "Test6Nimmt"
+    gammas = [0.75, 0.80, 0.9, 0.99]
 
-    if True:
-
-        # train hw:
-        #hw = {"gpu": 0, "cpu": 3} # imac
-        hw = {"gpu": 1, "cpu": 10}  # adris
-
-        env_params = {}
-
-        #env_params = {"size": 6, "max_steps": 50, "reduced_obs": True, "dead_when_colliding": True, "indestructible_agent": False, "dead_near_bomb": True}
-        #env_params = {"size": 6, "max_steps": 60, "reduced_obs": True, "dead_when_colliding": True, "indestructible_agent": False, "dead_near_bomb": True}
-        #env_params = {"size": 10, "max_steps": 100, "indestructible_agent": False, "dead_near_bomb": True}
-        # env_params = {"size": 10, "max_steps": 200, "dead_when_colliding": True, "dead_near_bomb": True, "indestructible_agent": False, "close_bomb_penalty": -1.0}
-        nn_model = [128, 128, 64]
-        activation = "relu"
-        description = "Test6Nimmt"
-
-        grid_search_hypers(env_params, nn_model, activation, description, hw, use_lstm=True)
+    grid_search_hypers(env_params, nn_model, activation, gammas, description, hw, use_lstm=True)
